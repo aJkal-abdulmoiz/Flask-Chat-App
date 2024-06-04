@@ -2,13 +2,13 @@
 
 This repository offers a user-friendly chat application built with Flask (a Python web framework), JavaScript, and Socket.IO (a real-time communication library). It enables multiple users to join designated chat rooms and exchange messages instantly, fostering a dynamic chat experience. The app prioritizes both simplicity and efficiency, making it an excellent choice for those seeking a straightforward and easily deployable real-time chat solution.
 
-#Key Features
+# Key Features
 Real-Time Messaging with Socket.IO (details about functionality)
 Multi-User Chat Rooms (details about functionality)
 Simple and Lightweight Design (details about design philosophy)
 Easy Deployment (details about deployment options)
 
-#Installation
+# Installation
 Clone the Repository:
 
 Bash
@@ -22,7 +22,7 @@ cd Flask-Chat-App
 pip install flask flask-socketio
 
 
-#Usage
+# Usage
 Run the App:
 
 Bash
