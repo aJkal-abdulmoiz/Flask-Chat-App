@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask-SocketIO Example</title>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+
+        #landing, #chat {
+            width: 40%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #landing {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #landing input, #landing button {
+            width: 100%;
+            padding: 5px 2px;
+            border-radius: 10px;
+            border: none;
+
+        }
+
+        #landing button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        #landing button:hover {
+            background-color: #45a049;
+        }
+
+        #landing p {
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        #chat {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        #chat-messages {
+            height: 400px;
+            background-color: #f9f9f9;
+            overflow-y: scroll;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        #chat-messages li {
+            list-style: none;
+            margin-bottom: 10px;
+            background-color: #f2f2f2;
+            border-radius: 15px;
+            padding: 5px 2px;
+            margin-right: 220px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            width: 40%;
+        }
+        .chat-right {
+            list-style: none;
+            margin-bottom: 10px;
+            background-color: #f2f2f2;
+            border-radius: 15px;
+            padding: 5px 2px;
+            margin-left: 380px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            width: 40%;
+        }
+
+        #chat input {
+            width: calc(100% - 50px);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+        }
+
+        #send-msg {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #4CAF50;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        #send-msg:hover {
+            background-color: #45a049;
+        }
+
+        #chat h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        .timestamp {
+            font-size: small;
+            color: gray;
+            margin-left: 10px;
+        }
+
+        .sent {
+            align-self: flex-end;
+            background-color: #d1e7dd;
+        }
+
+        .received {
+            align-self: flex-start;
+            background-color: #e2e3e5;
+        }
+    </style>
+</head>
+<body>
+    <div id="landing">
+        <p>Please join the chat</p>
+        <input type="text" id="username" placeholder="Username">
+        <button id="join-btn">JOIN</button>
+    </div>
+
+    <div id="chat">
+        <h2>Welcome to Air University Chat App</h2>
+        <ul id="chat-messages"></ul>
+        <div style="display: flex;">
+            <input type="text" id="message" placeholder="Enter a message">
+            <button id="send-msg">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io({ autoConnect: false });
+
+        document.getElementById('join-btn').addEventListener("click", () => {
+            let username = document.getElementById('username').value;
+            localStorage.setItem('user', JSON.stringify(username));
+
+            socket.connect();
+
+            socket.on("connect", function() {
+                socket.emit("user_join", username);
+            });
+
+            document.getElementById("chat").style.display = "flex";
+            document.getElementById("landing").style.display = "none";
+        });
+
+        document.getElementById('send-msg').addEventListener('click', () => {
+            let message = document.getElementById('message').value;
+
+            socket.emit("new_message", message);
+            document.getElementById('message').value = "";
+        });
+
+        socket.on("chat", function(data){
+            let ul = document.getElementById("chat-messages");
+            let li = document.createElement("li");
+
+            let spanUsername = document.createElement('span');
+            spanUsername.appendChild(document.createTextNode(data["username"] + ": "));
+            spanUsername.style.fontWeight = "bold";
+
+            let socket_username = data["username"];
+            let currentuser = JSON.parse(localStorage.getItem('user')); 
+
+            let spanMessage = document.createElement('span');
+            spanMessage.appendChild(document.createTextNode(data["message"]));
+
+            let spanTimestamp = document.createElement('span');
+            let currentTime = new Date().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+            spanTimestamp.appendChild(document.createTextNode(currentTime));
+            spanTimestamp.classList.add("timestamp");
+
+            li.appendChild(spanUsername);
+            li.appendChild(spanMessage);
+            li.appendChild(spanTimestamp);
+
+            if(socket_username === currentuser) {
+                li.classList.add('chat-right');
+            }
+
+            ul.appendChild(li);
+            ul.scrollTop = ul.scrollHeight;
+        });
+    </script>
+</body>
+</html>
